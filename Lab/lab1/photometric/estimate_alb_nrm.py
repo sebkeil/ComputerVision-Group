@@ -31,6 +31,13 @@ def estimate_alb_nrm( image_stack, scriptV, shadow_trick=True):
         normal at this point is g / |g|
     """
     
+   for point in image_stack:
+    i = point.flatten()
+    scriptI = np.diag(i)
+    g = np.linalg.lstsq(scriptI, i)  # solve linear algebra system for a constant, this needs to be adjusted but function should be correct
+    np.append(albedo, np.abs(g))
+    np.append(normal, (np.divide(g, np.abs(g))))
+    
     return albedo, normal
     
 if __name__ == '__main__':
