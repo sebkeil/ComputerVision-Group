@@ -35,7 +35,11 @@ def check_integrability(normals):
     
     """
     
-    return p, q, SE
+   for normal in normals:
+     np.append(p, np.divide(normal[0], normal[2]))
+     np.append(q, np.divide(normal[1], normal[2]))
+
+   return p, q, SE
 
 
 if __name__ == '__main__':
