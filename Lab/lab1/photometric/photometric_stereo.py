@@ -5,6 +5,7 @@ from utils import *
 from estimate_alb_nrm import estimate_alb_nrm
 from check_integrability import check_integrability
 from construct_surface import construct_surface
+import matplotlib.pyplot as plt
 
 print('Part 1: Photometric Stereo\n')
 
@@ -66,9 +67,14 @@ if __name__ == '__main__':
     target_dir = '/photometrics_images/SphereGray5'
     image_dir = cur_dir+target_dir
 
-    photometric_stereo(image_dir=image_dir)
+    target_dir2 = '/photometrics_images/yaleB02/'
+    image_dir2 = cur_dir+target_dir2
 
-    photometric_stereo_face()
+    photometric_stereo(image_dir=image_dir)
+    photometric_stereo_face(image_dir=image_dir2)
+
+
+
 
  
 
