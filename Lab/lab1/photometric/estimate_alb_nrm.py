@@ -30,6 +30,10 @@ def estimate_alb_nrm( image_stack, scriptV, shadow_trick=True):
         albedo at this point is |g|
         normal at this point is g / |g|
     """
+
+    # np.linalg.lstsq
+
+
     
     return albedo, normal
     
