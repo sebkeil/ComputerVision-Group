@@ -36,6 +36,7 @@ def photometric_stereo(image_dir='./SphereGray5/' ):
 
     # show results
     show_results(albedo, normals, height_map, SE)
+ 
 
 ## Face
 def photometric_stereo_face(image_dir='./yaleB02/'):
@@ -66,9 +67,11 @@ if __name__ == '__main__':
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     target_dir = '/photometrics_images/SphereGray5'
     image_dir = cur_dir+target_dir
+    print(image_dir)
 
     target_dir2 = '/photometrics_images/yaleB02/'
     image_dir2 = cur_dir+target_dir2
+
 
     photometric_stereo(image_dir=image_dir)
     photometric_stereo_face(image_dir=image_dir2)
