@@ -5,6 +5,7 @@ from utils import *
 from estimate_alb_nrm import estimate_alb_nrm
 from check_integrability import check_integrability
 from construct_surface import construct_surface
+import matplotlib.pyplot as plt
 
 print('Part 1: Photometric Stereo\n')
 
@@ -16,6 +17,7 @@ def photometric_stereo(image_dir='./SphereGray5/' ):
     [h, w, n] = image_stack.shape
     print('Finish loading %d images.\n' % n)
 
+    
     # compute the surface gradient from the stack of imgs and light source mat
     print('Computing surface albedo and normal map...\n')
     [albedo, normals] = estimate_alb_nrm(image_stack, scriptV)
@@ -34,6 +36,7 @@ def photometric_stereo(image_dir='./SphereGray5/' ):
 
     # show results
     show_results(albedo, normals, height_map, SE)
+ 
 
 ## Face
 def photometric_stereo_face(image_dir='./yaleB02/'):
@@ -57,6 +60,24 @@ def photometric_stereo_face(image_dir='./yaleB02/'):
     # show results
     show_results(albedo, normals, height_map, SE)
     
+    
 if __name__ == '__main__':
-    # photometric_stereo('./SphereGray5/')
-    photometric_stereo_face()
+    
+    
+    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    target_dir = '/photometrics_images/SphereGray5'
+    image_dir = cur_dir+target_dir
+    print(image_dir)
+
+    target_dir2 = '/photometrics_images/yaleB02/'
+    image_dir2 = cur_dir+target_dir2
+
+
+    photometric_stereo(image_dir=image_dir)
+    photometric_stereo_face(image_dir=image_dir2)
+
+
+
+
+ 
+
