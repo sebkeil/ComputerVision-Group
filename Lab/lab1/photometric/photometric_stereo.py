@@ -65,7 +65,7 @@ if __name__ == '__main__':
     
     
     cur_dir = os.path.dirname(os.path.realpath(__file__))
-    target_dir = '/photometrics_images/SphereGray5'
+    target_dir = '/photometrics_images/SphereGray25'
     image_dir = cur_dir+target_dir
     print(image_dir)
 
@@ -74,7 +74,10 @@ if __name__ == '__main__':
 
 
     photometric_stereo(image_dir=image_dir)
-    photometric_stereo_face(image_dir=image_dir2)
+    #photometric_stereo_face(image_dir=image_dir2)
+    
+    
+    print('TEST')
 
 
 
