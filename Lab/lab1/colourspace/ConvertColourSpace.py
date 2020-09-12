@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import rgbConversions
 from visualize import *
+import os
 
 def ConvertColourSpace(input_image, colourspace):
     '''

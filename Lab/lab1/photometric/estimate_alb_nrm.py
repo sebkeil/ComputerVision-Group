@@ -20,8 +20,6 @@ def estimate_alb_nrm( image_stack, scriptV, shadow_trick=False):
     # normal (3 channels)
     albedo = np.zeros([h, w])
     normal = np.zeros([h, w, 3])
-
-    print("Normal:\n",normal.shape)
     
 
     """
@@ -49,9 +47,8 @@ def estimate_alb_nrm( image_stack, scriptV, shadow_trick=False):
                 g, residuals, rank, s = np.linalg.lstsq(scriptV,i, rcond=None)
             g_norm = np.linalg.norm(g)
             albedo[x][y] = g_norm
-            normal[x][y] = np.divide(g,g_norm)
+            normal[x,y,:] = np.divide(g,g_norm)
 
-    print("Normal:\n",normal.shape)
     
     return albedo, normal
     
