@@ -3,6 +3,8 @@ import cv2
 import rgbConversions
 from visualize import *
 import os
+import matplotlib as plt
+import matplotlib.gridspec as gridspec
 
 def ConvertColourSpace(input_image, colourspace):
     '''
@@ -32,11 +34,11 @@ def ConvertColourSpace(input_image, colourspace):
 
     elif colourspace.lower() == 'hsv':
         # use built-in function from opencv
-        pass
+        new_image = cv2.cvtColor(input_image, cv2.COLOR_RGB2HSV)
 
     elif colourspace.lower() == 'ycbcr':
         # use built-in function from opencv
-        pass
+        new_image = cv2.cvtColor(input_image, cv2.COLOR_RGB2YCrCb)
 
     elif colourspace.lower() == 'gray':
         # fill in the rgb2opponent function
@@ -52,12 +54,23 @@ def ConvertColourSpace(input_image, colourspace):
 
 
 if __name__ == '__main__':
+
     # Replace the image name with a valid image
-    img_path = 'test.png'
+    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    img_path = cur_dir + '/images/dog.jpg'
+    print(img_path)
     # Read with opencv
     I = cv2.imread(img_path)
+
     # Convert from BGR to RGB
     # This is a shorthand.
     I = I[:, :, ::-1]
 
-    out_img = ConvertColourSpace(I, 'opponent.png')
+    #ConvertColourSpace(I, 'opponent')
+    #ConvertColourSpace(I, 'rgb')
+    #ConvertColourSpace(I, 'hsv')
+    #ConvertColourSpace(I, 'ycbcr')
+    ConvertColourSpace(I, 'gray')
+
+
+    #out_img = ConvertColourSpace(I, 'opponent.png')

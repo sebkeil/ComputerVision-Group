@@ -13,7 +13,7 @@ def photometric_stereo(image_dir='./SphereGray5/' ):
 
     # obtain many images in a fixed view under different illumination
     print('Loading images...\n')
-    [image_stack, scriptV] = load_syn_images(image_dir, channel=1)
+    [image_stack, scriptV] = load_syn_images(image_dir, channel=0)
     #[h, w, n] = image_stack.shape
     [h, w, n] = image_stack.shape
     print('Finish loading %d images.\n' % n)
@@ -64,32 +64,29 @@ def photometric_stereo_face(image_dir='./yaleB02/'):
     
 if __name__ == '__main__':
     
-    
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     target_dir = '/photometrics_images/SphereGray5'
     image_dir = cur_dir+target_dir
+    #photometric_stereo(image_dir)
 
     target_dir2 = '/photometrics_images/SphereGray25'
     image_dir2 = cur_dir+target_dir2
+    #photometric_stereo(image_dir=image_dir2)
+
 
     target_dir_mon = '/photometrics_images/MonkeyGray'
     image_dir_mon = cur_dir+target_dir_mon
+    #photometric_stereo(image_dir=image_dir_mon)
 
     target_dir_color = '/photometrics_images/SphereColor'
     image_dir_color = cur_dir+target_dir_color
     #photometric_stereo(image_dir=image_dir_color)
 
 
-
-
-    #photometric_stereo(image_dir=image_dir)
-    #photometric_stereo(image_dir=image_dir2)
-    #photometric_stereo(image_dir=image_dir_mon)
-
     target_dir3 = '/photometrics_images/yaleB02/'
     image_dir3 = cur_dir+target_dir3
-
     photometric_stereo_face(image_dir=image_dir3)
+
 
 
 
