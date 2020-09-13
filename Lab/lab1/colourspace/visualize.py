@@ -1,10 +1,12 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import cv2
 
 def visualize(input_image):
     # Fill in this function. Remember to remove the pass command
     # Showing of Image 
     if(len(input_image.shape) == 3 and input_image.shape[2]==3):
+        #input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
         fig = plt.figure(1)
         # set up subplot grid
         gridspec.GridSpec(3,3)

@@ -20,9 +20,10 @@ def ConvertColourSpace(input_image, colourspace):
 
     P.S: Do not forget the visualization part!
     '''
-
+    
     # Convert the image into double precision for conversions
     input_image = input_image.astype(np.float32)
+    
 
     if colourspace.lower() == 'opponent':
         # fill in the rgb2opponent function
@@ -39,6 +40,9 @@ def ConvertColourSpace(input_image, colourspace):
     elif colourspace.lower() == 'ycbcr':
         # use built-in function from opencv
         new_image = cv2.cvtColor(input_image, cv2.COLOR_RGB2YCrCb)
+        temp = np.array(new_image[:, :, 1])
+        new_image[:, :, 1] = new_image[:, :, 2]
+        new_image[:, :, 2] = temp
 
     elif colourspace.lower() == 'gray':
         # fill in the rgb2opponent function
@@ -70,9 +74,9 @@ if __name__ == '__main__':
     # to view each type of output
     # For specific gray image need to uncomment the functions 
     # in the rgbConversions.py file
-    out_img = ConvertColourSpace(I, 'opponent')
+    #out_img = ConvertColourSpace(I, 'opponent')
     #out_img = ConvertColourSpace(I, 'rgb')
     #out_img = ConvertColourSpace(I, 'hsv')
-    #out_img = ConvertColourSpace(I, 'ycbcr')
+    out_img = ConvertColourSpace(I, 'ycbcr')
     #out_img = ConvertColourSpace(I, 'gray')
 
