@@ -66,11 +66,13 @@ if __name__ == '__main__':
     # This is a shorthand.
     I = I[:, :, ::-1]
 
-    #ConvertColourSpace(I, 'opponent')
-    #ConvertColourSpace(I, 'rgb')
-    #ConvertColourSpace(I, 'hsv')
-    #ConvertColourSpace(I, 'ycbcr')
-    ConvertColourSpace(I, 'gray')
+    # All the function has been implimented, please uncomment 
+    # to view each type of output
+    # For specific gray image need to uncomment the functions 
+    # in the rgbConversions.py file
+    out_img = ConvertColourSpace(I, 'opponent')
+    #out_img = ConvertColourSpace(I, 'rgb')
+    #out_img = ConvertColourSpace(I, 'hsv')
+    #out_img = ConvertColourSpace(I, 'ycbcr')
+    #out_img = ConvertColourSpace(I, 'gray')
 
-
-    #out_img = ConvertColourSpace(I, 'opponent.png')
