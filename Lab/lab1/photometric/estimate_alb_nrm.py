@@ -1,4 +1,4 @@
-import numpy as np
+
 
 def estimate_alb_nrm( image_stack, scriptV, shadow_trick=True):
     
@@ -12,13 +12,13 @@ def estimate_alb_nrm( image_stack, scriptV, shadow_trick=True):
     # normal : the surface normal
 
     h, w, _ = image_stack.shape
-    
+
     # create arrays for 
     # albedo (1 channel)
     # normal (3 channels)
     albedo = np.zeros([h, w])
     normal = np.zeros([h, w, 3])
-    
+
     """
     ================
     Your code here
@@ -30,18 +30,41 @@ def estimate_alb_nrm( image_stack, scriptV, shadow_trick=True):
         albedo at this point is |g|
         normal at this point is g / |g|
     """
-    
-   for point in image_stack:
-    i = point.flatten()
-    scriptI = np.diag(i)
-    g = np.linalg.lstsq(scriptI, i)  # solve linear algebra system for a constant, this needs to be adjusted but function should be correct
-    np.append(albedo, np.abs(g))
-    np.append(normal, (np.divide(g, np.abs(g))))
-    
+    np.seterr(divide='ignore', invalid='ignore')
+
+    for x in range(h):
+        for y in range(w):
+            i = image_stack[x][y].T
+            scriptI = np.diag(i)
+
+            # replace NaN values so we do not receive LinAlgError
+            i[np.isnan(i)] = 1
+            scriptI[np.isnan(scriptI)] = 1
+            scriptV[np.isnan(scriptV)] = 1
+
+            A = np.matmul(scriptI, scriptV)  # multiply matrices so we can solve the linear system
+            B = np.matmul(scriptI, i)
+            if shadow_trick:
+                g, residuals, rank, s = np.linalg.lstsq(A, B, rcond=None)  # solve linear algebra system for a constant
+            else:
+                g, residuals, rank, s = np.linalg.lstsq(scriptV,i, rcond=None)
+            g_norm = np.linalg.norm(g)
+            albedo[x][y] = g_norm
+            normal[x,y,:] = np.divide(g,g_norm)
+
     return albedo, normal
     
 if __name__ == '__main__':
     n = 5
     image_stack = np.zeros([10,10,n])
     scriptV = np.zeros([n,3])
-    estimate_alb_nrm( image_stack, scriptV, shadow_trick=True)
+    estimate_alb_nrm( image_stack, scriptV, shadow_trick=False)
+
+'''    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    target_dir = '/photometrics_images/SphereGray5'
+    image_dir = cur_dir+target_dir
+    
+
+    [image_stack, scriptV] = load_syn_images(image_dir)
+    [h, w, n] = image_stack.shape
+    [albedo, normals] = estimate_alb_nrm(image_stack, scriptV)'''
