@@ -46,7 +46,7 @@ def load_syn_images(image_dir='./SphereGray5/', channel=0):
     
     
 def load_face_images(image_dir='./yaleB02/'):
-    num_images = 64
+    num_images = 62
     filename = os.path.join(image_dir, 'yaleB02_P00_Ambient.pgm')
     ambient_image = cv2.imread(filename, -1)
     h, w = ambient_image.shape

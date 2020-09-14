@@ -68,7 +68,7 @@ def construct_surface(p, q, path_type='column'):
 
         height_map_temp = height_map
 
-        height_map = 0 
+        height_map[0][0] = 0 
         for x in range(1, w):
             height_map[0][x] = height_map[0][x-1] + q[0][x]
         for y in range(1,h):
