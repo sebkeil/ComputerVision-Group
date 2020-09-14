@@ -13,7 +13,7 @@ def photometric_stereo(image_dir='./SphereGray5/' ):
 
     # obtain many images in a fixed view under different illumination
     print('Loading images...\n')
-    [image_stack, scriptV] = load_syn_images(image_dir, channel=0)
+    [image_stack, scriptV] = load_syn_images(image_dir) # type='color'
     #[h, w, n] = image_stack.shape
     [h, w, n] = image_stack.shape
     print('Finish loading %d images.\n' % n)
@@ -78,10 +78,11 @@ if __name__ == '__main__':
     image_dir_mon = cur_dir+target_dir_mon
     #photometric_stereo(image_dir=image_dir_mon)
 
+    # Color image processing
+    # need to pass type='color' in the load_syn_images function
     target_dir_color = '/photometrics_images/SphereColor'
     image_dir_color = cur_dir+target_dir_color
     #photometric_stereo(image_dir=image_dir_color)
-
 
     target_dir3 = '/photometrics_images/yaleB02/'
     image_dir3 = cur_dir+target_dir3

@@ -5,29 +5,40 @@ import cv2
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-def load_syn_images(image_dir='./SphereGray5/', channel=0):
+def load_syn_images(image_dir='./SphereGray5/', type='greyscale'):
+
+    channels = [0]
+
+    if type == 'color':
+        channels = [0, 1, 2]
+
     files = os.listdir(image_dir)
-    #files = [os.path.join(image_dir, f) for f in files]
+    # files = [os.path.join(image_dir, f) for f in files]
     nfiles = len(files)
-    
+
     image_stack = None
     V = 0
     Z = 0.5
 
-    
     for i in range(nfiles):
-        # read input image
-        im = cv2.imread(os.path.join(image_dir, files[i]))
-        im = im[:,:,channel]
-        
+
+        # read input image per channel
+        for channel in channels:
+            im = cv2.imread(os.path.join(image_dir, files[i]))
+            im = im[:, :, channel]
+
         # stack at third dimension
         if image_stack is None:
             h, w = im.shape
-            print('Image size (H*W): %d*%d' %(h,w) )
-            image_stack = np.zeros([h, w, nfiles], dtype=int)
-            V = np.zeros([nfiles, 3], dtype=np.float64)
-            
-        image_stack[:,:,i] = im
+            print('Image size (H*W): %d*%d' % (h, w))
+            if len(channels) == 1:                                  # it is a grey image
+                image_stack = np.zeros([h, w, nfiles], dtype=int)
+                V = np.zeros([nfiles, 3], dtype=np.float64)
+            else:                                                   # it is a color image
+                image_stack = np.zeros([h, w, nfiles * 3], dtype=int)
+                V = np.zeros([nfiles * 3, 3], dtype=np.float64)
+
+        image_stack[:, :, i] = im
         
         # read light direction from image name
         X = np.double(files[i][(files[i].find('_')+1):files[i].rfind('_')])

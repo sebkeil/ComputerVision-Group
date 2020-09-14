@@ -39,6 +39,12 @@ def estimate_alb_nrm( image_stack, scriptV, shadow_trick=False):
         for y in range(w):
             i = image_stack[x][y].T
             scriptI = np.diag(i)
+
+            # replace NaN values so we do not receive LinAlgError
+            i[np.isnan(i)] = 1
+            scriptI[np.isnan(scriptI)] = 1
+            scriptV[np.isnan(scriptV)] = 1
+            
             A = np.matmul(scriptI, scriptV)  # multiply matrices so we can solve the linear system
             B = np.matmul(scriptI, i)
             if shadow_trick:
