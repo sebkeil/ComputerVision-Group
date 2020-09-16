@@ -8,3 +8,8 @@ def  gauss2D(sigma ,kernel_size):
 
 def createGabor():
 	# your code
+
+#tody: create gabor by @asif
+
+
+# end of statement
