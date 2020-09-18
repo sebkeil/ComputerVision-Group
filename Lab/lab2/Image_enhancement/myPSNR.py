@@ -1,6 +1,11 @@
 import cv2
 import numpy as np
 
+import os
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+
 orig_image = cv2.imread('images/image1_gaussian.jpg')
 approx_image = cv2.imread('images/image1.jpg')
 orig_image2 = cv2.imread('images/image1_saltpepper.jpg')

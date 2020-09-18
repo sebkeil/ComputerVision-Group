@@ -1,3 +1,5 @@
 def gauss2D( sigma , kernel_size ):
-    ## solution
+    
+    m,n = [(())]
+
     return G

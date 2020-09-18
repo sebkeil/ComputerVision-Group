@@ -3,11 +3,14 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import time
+import os
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Hyperparameters
 k        = 2      # number of clusters in k-means algorithm. By default, 
                   # we consider k to be 2 in foreground-background segmentation task.
-image_id = 'Cows' # Identifier to switch between input images.
+image_id = 'Polar' # Identifier to switch between input images.
                   # Possible ids: 'Kobi',    'Polar', 'Robin-1'
                   #               'Robin-2', 'Cows', 'SciencePark'
 
@@ -20,7 +23,7 @@ smoothingFlag = True   #  Set to true to postprocess filter outputs.
 
 # Read image
 if image_id == 'Kobi':
-  img = cv2.imread('kobi.png')
+  img = cv2.imread('./data/kobi.png')
   img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
   resize_factor = 0.25
 elif image_id == 'Polar':
@@ -42,20 +45,20 @@ elif image_id == 'Cows':
 elif image_id == 'SciencePark':
   img = cv2.imread('./data/sciencepark.jpg')
   img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-  img = permute(img,[2,1,3])
   resize_factor = 0.2         
 else:
   raise ValueError(err_msg)
 
 # Image adjustments
-img = cv2.resize(img, (0,0), fx=resize_factor, fy=resize_factor)
-img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+img = cv2.resize(img, (0, 0), fx=resize_factor, fy=resize_factor)
+img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
 # Display image
 plt.figure()
 plt.title(f'Input image: {image_id}')
-plt.imshow(img)
-plt.axis("off") 
+plt.imshow(img, cmap='gray')
+plt.axis("off")
+plt.show()
 
 # Design array of Gabor Filters
 # In this code section, you will create a Gabor Filterbank. A filterbank is
@@ -141,12 +144,12 @@ featureMaps = []
 for gaborFilter in gaborFilterBank:
     # gaborFilter["filterPairs"] has two elements. One is related to the real part 
     # of the Gabor Filter and the other one is the imagineray part.
-    real_out =  # \\TODO: filter the grayscale input with real part of the Gabor
-    imag_out =  # \\TODO: filter the grayscale input with imaginary part of the Gabor
+    real_out = None  # \\TODO: filter the grayscale input with real part of the Gabor
+    imag_out = None  # \\TODO: filter the grayscale input with imaginary part of the Gabor
     featureMaps.append(np.stack((real_out, imag_out), 2))
     
     # Visualize the filter responses if you wish.
-    if visFlag
+    if visFlag:
         fig = plt.figure()
 
         ax = fig.add_subplot(1, 2, 1)
@@ -160,16 +163,16 @@ for gaborFilter in gaborFilterBank:
         title = "Im[h(x,y)], \n lambda = {0:.4f}, \n theta = {1:.4f}, \n sigma = {2:.4f}".format(gaborFilter["lmbda"], gaborFilter["theta"], gaborFilter["sigma"])
         ax.set_title(title)
         ax.axis("off")
-
+        plt.show()
 
 # Compute the magnitude
 # Now, you will compute the magnitude of the output responses.
 # \\ Hint: (real_part^2 + imaginary_part^2)^(1/2) \\
-featureMags =  []
+featureMags = []
 for i, fm in enumerate(featureMaps):
     real_part = fm[...,0]
     imag_part = fm[...,1]
-    mag = # \\TODO: Compute the magnitude here
+    mag = None  # \\TODO: Compute the magnitude here
     featureMags.append(mag)
     
     # Visualize the magnitude response if you wish.
@@ -196,16 +199,17 @@ for i, fm in enumerate(featureMaps):
 #          using an appropriate first order Gaussian kernel.
 # \\ Hint: cv2 filter2D function is helpful here.   
 features = np.zeros(shape=(numRows, numCols, len(featureMags)))
-if smoothingFlag
+if smoothingFlag:
+    pass
     # \\TODO:
     #FOR_LOOP
         # i)  filter the magnitude response with appropriate Gaussian kernels
         # ii) insert the smoothed image into features[:,:,jj]
     #END_FOR
-else
+else:
     # Don't smooth but just insert magnitude images into the matrix
     # called features.
-    for i, fmag in enumerate(featureMags)
+    for i, fmag in enumerate(featureMags):
         features[:,:,i] = fmag
 
 
@@ -219,8 +223,8 @@ features = np.reshape(features, newshape=(numRows * numCols, -1))
 # Standardize features. 
 # \\ Hint: see http://ufldl.stanford.edu/wiki/index.php/Data_Preprocessing for more information.
 
-features = # \\ TODO: i)  Implement standardization on matrix called features. 
-           #          ii) Return the standardized data matrix.
+features = None  # \\ TODO: i)  Implement standardization on matrix called features.
+                 #          ii) Return the standardized data matrix.
 
 
 # (Optional) Visualize the saliency map using the first principal component 
@@ -234,7 +238,7 @@ plt.figure()
 plt.title(f'Pixel representation projected onto first PC')
 plt.imshow(feature2DImage, cmap='gray')
 plt.axis("off") 
-
+plt.show()
 
 # Apply k-means algorithm to cluster pixels using the data matrix,
 # features. 
@@ -242,7 +246,7 @@ plt.axis("off")
 # \\ Hint-2: use the parameter k defined in the first section when calling
 #            sklearn's built-in kmeans function.
 tic = time.time()
-pixLabels = # \\TODO: Return cluster labels per pixel
+pixLabels = None  # \\TODO: Return cluster labels per pixel
 ctime = time.time() - tic
 print(f'Clustering completed in {ctime} seconds.')
 
@@ -250,12 +254,12 @@ print(f'Clustering completed in {ctime} seconds.')
 
 # Visualize the clustering by reshaping pixLabels into original grayscale
 # input size [numRows numCols].
-pixLabels = np.reshape(pixLabels,newshape=(numRows numCols))
+pixLabels = np.reshape(pixLabels, newshape=(numRows, numCols))
 plt.figure()
 plt.title(f'Pixel clusters')
 plt.imshow(pixLabels)
 plt.axis("off") 
-
+plt.show()
 
 
 # Use the pixLabels to visualize segmentation.
@@ -271,6 +275,5 @@ plt.title(f'montage')
 plt.imshow(Aseg1, 'gray', interpolation='none')
 plt.imshow(Aseg2, 'jet',  interpolation='none', alpha=0.7)
 plt.axis("off") 
-
-
+plt.show()
 

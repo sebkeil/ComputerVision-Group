@@ -8,58 +8,60 @@ import os
 
 def compute_LoG(image, LOG_type=1):
     if LOG_type == 1:
-        # method 1
-        sigma = 0.5
+
+        #method 1
+        sigma = 0.5      
         size = 5
-        # # Smoothing the image using gaussian filter
+        # # Smoothing the image using gaussian filter 
         # x = Gaussian_filter(image, size=size, sigma=sigma)
-
-        # # Taking Second derivative of a Gaussian image
+    
+        # # Taking Second derivative of a Gaussian image 
         # a = (np.divide(np.square(x), np.power(sigma,4)) - np.divide(1,np.square(sigma)))
-
+     
         # b = np.exp((-1)*(np.square(x)/(2*np.square(sigma))))
-
+      
         # img = a * b
-        # img = cv2.convertScaleAbs(img)
-        img = cv2.GaussianBlur(image, (size, size), sigma)
-        img = cv2.Laplacian(img, ddepth=cv2.CV_16S, ksize=size)
-
+        # img = cv2.convertScaleAbs(img)       
+        img = cv2.GaussianBlur(image, (size,size), sigma)
+        img = cv2.Laplacian(img, ddepth= cv2.CV_16S, ksize=size)
+  
         return img
 
     elif LOG_type == 2:
-        # method 2
+        #method 2
         size = 5
         sigma = 0.5
-        x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
-        g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
-        g = g / g.sum()
-
+        x, y = np.mgrid[-size//2 + 1:size//2 + 1, -size//2 + 1:size//2 + 1]
+        g = np.exp(-((x**2 + y**2)/(2.0*sigma**2)))
+        g = g/g.sum()
+        
         outimg = convolve2d(image, g, mode='same')
-
+            
         return outimg
 
     elif LOG_type == 3:
-        # method 3
+        #method 3
         size = 5
         sigma = 0.5
-        x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
-        g1 = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
-        g1 = g1 / g1.sum()
-
+        x, y = np.mgrid[-size//2 + 1:size//2 + 1, -size//2 + 1:size//2 + 1]
+        g1 = np.exp(-((x**2 + y**2)/(2.0*sigma**2)))
+        g1 = g1/g1.sum()
+        
         size = 5
         sigma = 1.0
-        x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
-        g2 = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
-        g2 = g2 / g2.sum()
-        gd = g1 - g2
-
+        x, y = np.mgrid[-size//2 + 1:size//2 + 1, -size//2 + 1:size//2 + 1]
+        g2 = np.exp(-((x**2 + y**2)/(2.0*sigma**2)))
+        g2 = g2/g2.sum()
+        gd = g1 - g2 
+        
         outimg = convolve2d(image, gd, mode='same')
-
+        
         return outimg
 
-    # return imOut
+	#return imOut
 
-
+      
+  
 def Gaussian_filter(image, size, sigma):
     x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
     g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
@@ -130,4 +132,4 @@ if __name__ == '__main__':
     # plt.imshow(blur_img, cmap='gray')
     # plt.show()
 
-
+    
