@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import time
+from skimage.filters import gabor_kernel
 
 # Hyperparameters
 k        = 2      # number of clusters in k-means algorithm. By default, 
@@ -19,6 +20,7 @@ visFlag       = False    #  Set to true to visualize filter responses.
 smoothingFlag = True   #  Set to true to postprocess filter outputs.
 
 # Read image
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 if image_id == 'Kobi':
   img = cv2.imread('kobi.png')
   img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
