@@ -3,6 +3,8 @@ import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+
+
 gaussian = cv2.imread('images/image1_gaussian.jpg')
 salt_pepper = cv2.imread('images/image1_saltpepper.jpg')
 
