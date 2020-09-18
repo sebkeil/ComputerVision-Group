@@ -20,7 +20,7 @@ def compute_LoG(image, LOG_type=1):
       
         # img = a * b
         # img = cv2.convertScaleAbs(img)       
-        img =cv2.GaussianBlur(image, (size,size), sigma)
+        img = cv2.GaussianBlur(image, (size,size), sigma)
         img = cv2.Laplacian(img, ddepth= cv2.CV_16S, ksize=size)
   
         return img
