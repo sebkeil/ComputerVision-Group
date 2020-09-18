@@ -12,8 +12,8 @@ def compute_gradient(image):
                 [2, 0, -2],
                 [3, 0, -3]])
     filter_y = np.array([[1, 2, 1],
-                   [ 0, 0, 0],
-                   [-1,-2,-1]])
+                         [ 0, 0, 0],
+                         [-1,-2,-1]])
 
     # Sobel kernels  in the x and y directions
     Gx = convolve2d(gray_image, filter_x, mode='same')
@@ -22,8 +22,10 @@ def compute_gradient(image):
     # Computing image magnitude and direction 
     im_magnitude = np.sqrt(np.square(Gx)+np.square(Gy))
     im_direction = np.arctan(np.divide(Gy, Gx))
+    # Threshold 
+    #im_direction[im_direction > 50 ] = 100
 
-    return Gx, Gy, im_magnitude,im_direction
+    return Gx, Gy, im_magnitude,im_direction 
 
 
 if __name__ == '__main__':
@@ -44,12 +46,17 @@ if __name__ == '__main__':
 
 
     fig = plt.figure(figsize=(10,8))
+    
     fig.add_subplot(2,2,1)
     plt.imshow(Gx, cmap='gray')
+    plt.axis("off") 
     fig.add_subplot(2,2,2)
     plt.imshow(Gy, cmap='gray')
+    plt.axis("off") 
     fig.add_subplot(2,2,3)
     plt.imshow(magnitude, cmap='gray')
+    plt.axis("off") 
     fig.add_subplot(2,2,4)
     plt.imshow(direction, cmap='gray')
+    plt.axis("off") 
     plt.show()
