@@ -4,6 +4,7 @@ import math
 import numpy as np
 import time
 import os
+from createGabor import createGabor
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -67,7 +68,7 @@ plt.show()
 # and scales. We will use this bank to extract texture information from the
 # input image. 
 
-numRows, numCols, _ = img.shape
+numRows, numCols = img.shape
 
 # Estimate the minimum and maximum of the wavelengths for the sinusoidal
 # carriers. 

@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def createGabor( sigma, theta, lamda, psi, gamma ):
 #CREATEGABOR Creates a complex valued Gabor filter.
 #   myGabor = createGabor( sigma, theta, lamda, psi, gamma ) generates
@@ -62,12 +61,12 @@ def createGabor( sigma, theta, lamda, psi, gamma ):
 
     # Modulate (multiply) Gaussian envelope with the carriers to compute 
     # the real and imaginary components of the omplex Gabor filter. 
-    myGabor_real =      # \\TODO: modulate gaussianEnv with cosCarrier
-    myGabor_imaginary = # \\TODO: modulate gaussianEnv with sinCarrier
+    myGabor_real = gaussianEnv * cosCarrier  # \\TODO: modulate gaussianEnv with cosCarrier
+    myGabor_imaginary = gaussianEnv * sinCarrier  # \\TODO: modulate gaussianEnv with sinCarrier
 
     # Pack myGabor_real and myGabor_imaginary into myGabor.
     h, w = myGabor_real.shape
-    myGabor = np.zeros(h, w, 2)
+    myGabor = np.zeros((h, w, 2))
     myGabor[:,:,0] = myGabor_real
     myGabor[:,:,1] = myGabor_imaginary
 
@@ -83,6 +82,7 @@ def createGabor( sigma, theta, lamda, psi, gamma ):
     # ax = fig.add_subplot(1, 2, 2)
     # ax.imshow(myGabor_imaginary)    # Real
     # ax.axis("off")
+    # plt.show()
     return myGabor
 
 
@@ -92,35 +92,39 @@ def generateRotationMatrix(theta):
     # ----------------------------------------------------------
     # Returns the rotation matrix. 
     # \\ Hint: https://en.wikipedia.org/wiki/Rotation_matrix \\
-    rotMat = # \\TODO: code the rotation matrix given theta.
-return rotMat
+    x = [np.cos(theta), np.sin(theta)]
+    y = [-np.sin(theta), np.cos(theta)]
+    rotMat = [x, y]
+    return rotMat
 
 # ----------------------------------------------------------
 def createCos(rot_x, lamda, psi):
     # ----------------------------------------------------------
     # Returns the 2D cosine carrier. 
-    cosCarrier = # \\TODO: Implement the cosine given rot_x, lamda and psi.
-
+    a = (2 * np.pi)*np.divide(rot_x, lamda)
+    cosCarrier = np.cos(a + psi)
     # Reshape the vector representation to matrix.
-    cosCarrier = np.reshape(cosCarrier, (np.sqrt(len(cosCarrier)), -1))
-return cosCarrier
+    cosCarrier = np.reshape(cosCarrier, (np.int(np.sqrt(len(cosCarrier))), -1))
+    return cosCarrier
 
 # ----------------------------------------------------------
-def createSin(rot_x, lamda, psi)
+def createSin(rot_x, lamda, psi):
     # ----------------------------------------------------------
     # Returns the 2D sine carrier. 
-    sinCarrier = # \\TODO: Implement the sine given rot_x, lamda and psi.
-
+    a = (2 * np.pi)*np.divide(rot_x, lamda)
+    sinCarrier = np.sin(a + psi)
     # Reshape the vector representation to matrix.
-    sinCarrier = np.reshape(sinCarrier, (np.sqrt(len(sinCarrier)), -1))
-return sinCarrier
+    sinCarrier = np.reshape(sinCarrier, (np.int(np.sqrt(len(sinCarrier))), -1))
+    return sinCarrier
 
 # ----------------------------------------------------------
-def createGauss(rot_x, rot_y, gamma, sigma)
+def createGauss(rot_x, rot_y, gamma, sigma):
     # ----------------------------------------------------------
     # Returns the 2D Gaussian Envelope. 
-    gaussEnv = # \\TODO: Implement the Gaussian envelope.
+    a = rot_x ** 2 + np.multiply(gamma **2,rot_y**2)
+    b = 2 * np.square(sigma)
+    gaussEnv = np.exp(-np.divide(a,b))
 
     # Reshape the vector representation to matrix.
-    gaussEnv = np.reshape(gaussEnv, (np.sqrt(len(gaussEnv)), -1))
-return gaussEnv
+    gaussEnv = np.reshape(gaussEnv, (np.int(np.sqrt(len(gaussEnv))), -1))
+    return gaussEnv
