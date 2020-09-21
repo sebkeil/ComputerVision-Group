@@ -11,7 +11,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 # Hyperparameters
 k        = 2      # number of clusters in k-means algorithm. By default, 
                   # we consider k to be 2 in foreground-background segmentation task.
-image_id = 'Polar' # Identifier to switch between input images.
+image_id = 'Kobi' # Identifier to switch between input images.
                   # Possible ids: 'Kobi',    'Polar', 'Robin-1'
                   #               'Robin-2', 'Cows', 'SciencePark'
 
@@ -20,7 +20,7 @@ err_msg  = 'Image not available.'
 
 # Control settings
 visFlag       = False    #  Set to true to visualize filter responses.
-smoothingFlag = True   #  Set to true to postprocess filter outputs.
+smoothingFlag = False   #  Set to true to postprocess filter outputs.
 
 # Read image
 if image_id == 'Kobi':
@@ -53,6 +53,7 @@ else:
 # Image adjustments
 img = cv2.resize(img, (0, 0), fx=resize_factor, fy=resize_factor)
 img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+img = img.astype(np.float32)
 
 # Display image
 plt.figure()
@@ -145,8 +146,8 @@ featureMaps = []
 for gaborFilter in gaborFilterBank:
     # gaborFilter["filterPairs"] has two elements. One is related to the real part 
     # of the Gabor Filter and the other one is the imagineray part.
-    real_out = None  # \\TODO: filter the grayscale input with real part of the Gabor
-    imag_out = None  # \\TODO: filter the grayscale input with imaginary part of the Gabor
+    real_out = cv2.filter2D(img, -1, gaborFilter["filterPairs"][:, :, 0])   # \\TODO: filter the grayscale input with real part of the Gabor
+    imag_out = cv2.filter2D(img, -1, gaborFilter["filterPairs"][:, :, 1])   # \\TODO: filter the grayscale input with imaginary part of the Gabor
     featureMaps.append(np.stack((real_out, imag_out), 2))
     
     # Visualize the filter responses if you wish.
@@ -173,7 +174,7 @@ featureMags = []
 for i, fm in enumerate(featureMaps):
     real_part = fm[...,0]
     imag_part = fm[...,1]
-    mag = None  # \\TODO: Compute the magnitude here
+    mag = np.sqrt(real_part**2 + imag_part**2)  # \\TODO: Compute the magnitude here
     featureMags.append(mag)
     
     # Visualize the magnitude response if you wish.
@@ -207,6 +208,9 @@ if smoothingFlag:
         # i)  filter the magnitude response with appropriate Gaussian kernels
         # ii) insert the smoothed image into features[:,:,jj]
     #END_FOR
+    kernel = cv2.getGaussianKernel(3, 1)
+    for i in range(len(featureMags)):
+        features[:, :, i] = cv2.filter2D(featureMags[i], -1, kernel)
 else:
     # Don't smooth but just insert magnitude images into the matrix
     # called features.
@@ -223,9 +227,11 @@ features = np.reshape(features, newshape=(numRows * numCols, -1))
 
 # Standardize features. 
 # \\ Hint: see http://ufldl.stanford.edu/wiki/index.php/Data_Preprocessing for more information.
-
-features = None  # \\ TODO: i)  Implement standardization on matrix called features.
-                 #          ii) Return the standardized data matrix.
+from sklearn import preprocessing
+scaler = preprocessing.StandardScaler()
+features = scaler.fit_transform(features)  
+# \\ TODO: i)  Implement standardization on matrix called features.
+#          ii) Return the standardized data matrix.
 
 
 # (Optional) Visualize the saliency map using the first principal component 
@@ -247,7 +253,10 @@ plt.show()
 # \\ Hint-2: use the parameter k defined in the first section when calling
 #            sklearn's built-in kmeans function.
 tic = time.time()
-pixLabels = None  # \\TODO: Return cluster labels per pixel
+from sklearn.cluster import KMeans
+#kmeans = KMeans(n_clusters=2, random_state=0).fit(features)
+pixLabels = KMeans(n_clusters=k).fit_predict(features)
+# \\TODO: Return cluster labels per pixel
 ctime = time.time() - tic
 print(f'Clustering completed in {ctime} seconds.')
 
@@ -266,10 +275,11 @@ plt.show()
 # Use the pixLabels to visualize segmentation.
 Aseg1 = np.zeros_like(img)
 Aseg2 = np.zeros_like(img)
-BW = pixLabels == 2
+BW = pixLabels == 1
 BW = np.repeat(BW[:, :, np.newaxis], 3, axis=2)
-Aseg1[BW] = img[BW]
-Aseg2[~BW] = img[~BW]
+#Aseg1[BW] = img[BW]
+#Aseg2[~BW] = img[~BW]
+print(BW)
 
 plt.figure()
 plt.title(f'montage')
