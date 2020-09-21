@@ -19,7 +19,7 @@ image_id = 'Kobi' # Identifier to switch between input images.
 err_msg  = 'Image not available.'
 
 # Control settings
-visFlag       = False    #  Set to true to visualize filter responses.
+visFlag       = True    #  Set to true to visualize filter responses.
 smoothingFlag = False   #  Set to true to postprocess filter outputs.
 
 # Read image
@@ -50,10 +50,12 @@ elif image_id == 'SciencePark':
 else:
   raise ValueError(err_msg)
 
+# make copy of the image
+img2 = img.copy()
 # Image adjustments
 img = cv2.resize(img, (0, 0), fx=resize_factor, fy=resize_factor)
 img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-img = img.astype(np.float32)
+#img = img.astype(np.float32)
 
 # Display image
 plt.figure()
@@ -229,9 +231,8 @@ features = np.reshape(features, newshape=(numRows * numCols, -1))
 # \\ Hint: see http://ufldl.stanford.edu/wiki/index.php/Data_Preprocessing for more information.
 from sklearn import preprocessing
 scaler = preprocessing.StandardScaler()
-features = scaler.fit_transform(features)  
-# \\ TODO: i)  Implement standardization on matrix called features.
-#          ii) Return the standardized data matrix.
+features = scaler.fit_transform(features)  # \\ TODO: i)  Implement standardization on matrix called features.
+                                           #          ii) Return the standardized data matrix.
 
 
 # (Optional) Visualize the saliency map using the first principal component 
@@ -276,10 +277,10 @@ plt.show()
 Aseg1 = np.zeros_like(img)
 Aseg2 = np.zeros_like(img)
 BW = pixLabels == 1
-BW = np.repeat(BW[:, :, np.newaxis], 3, axis=2)
-#Aseg1[BW] = img[BW]
-#Aseg2[~BW] = img[~BW]
-print(BW)
+#BW = np.repeat(BW[:, :, np.newaxis], 1, axis=2)
+Aseg1[BW] = img[BW]
+Aseg2[~BW] = img[~BW]
+
 
 plt.figure()
 plt.title(f'montage')
