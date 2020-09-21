@@ -5,6 +5,7 @@ import numpy as np
 import time
 import os
 from createGabor import createGabor
+import skimage
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -203,6 +204,7 @@ for i, fm in enumerate(featureMaps):
 #          using an appropriate first order Gaussian kernel.
 # \\ Hint: cv2 filter2D function is helpful here.   
 features = np.zeros(shape=(numRows, numCols, len(featureMags)))
+
 if smoothingFlag:
     pass
     # \\TODO:
@@ -210,9 +212,9 @@ if smoothingFlag:
         # i)  filter the magnitude response with appropriate Gaussian kernels
         # ii) insert the smoothed image into features[:,:,jj]
     #END_FOR
-    kernel = cv2.getGaussianKernel(3, 1)
-    for i in range(len(featureMags)):
-        features[:, :, i] = cv2.filter2D(featureMags[i], -1, kernel)
+    #kernel = cv2.getGaussianKernel(3, 1)
+    for i, fmag in enumerate(featureMags):
+        features[:,:,i] = cv2.GaussianBlur(fmag,(5,5),sigma)
 else:
     # Don't smooth but just insert magnitude images into the matrix
     # called features.
