@@ -10,7 +10,7 @@ import skimage
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Hyperparameters
-k        = 2      # number of clusters in k-means algorithm. By default, 
+k        = 12      # number of clusters in k-means algorithm. By default, 
                   # we consider k to be 2 in foreground-background segmentation task.
 image_id = 'Kobi' # Identifier to switch between input images.
                   # Possible ids: 'Kobi',    'Polar', 'Robin-1'
@@ -20,8 +20,8 @@ image_id = 'Kobi' # Identifier to switch between input images.
 err_msg  = 'Image not available.'
 
 # Control settings
-visFlag       = True    #  Set to true to visualize filter responses.
-smoothingFlag = False   #  Set to true to postprocess filter outputs.
+visFlag       = False    #  Set to true to visualize filter responses.
+smoothingFlag = True   #  Set to true to postprocess filter outputs.
 
 # Read image
 if image_id == 'Kobi':
@@ -92,7 +92,7 @@ orientations = np.arange(0, np.pi+dTheta, dTheta)
 
 # Define the set of sigmas for the Gaussian envelope. Sigma here defines 
 # the standard deviation, or the spread of the Gaussian. 
-sigmas = np.array([1,2])
+sigmas = np.array([1,2,3,4,5])
 
 # Now you can create the filterbank. We provide you with a Python list
 # called gaborFilterBank in which we will hold the filters and their
@@ -212,9 +212,10 @@ if smoothingFlag:
         # i)  filter the magnitude response with appropriate Gaussian kernels
         # ii) insert the smoothed image into features[:,:,jj]
     #END_FOR
-    #kernel = cv2.getGaussianKernel(3, 1)
     for i, fmag in enumerate(featureMags):
-        features[:,:,i] = cv2.GaussianBlur(fmag,(5,5),sigma)
+      fmag = np.array(fmag, np.float32)
+      gaussian_fmag = cv2.GaussianBlur(fmag, (3,3),sigmaX=sigma)
+      features[:,:,i] = np.array(gaussian_fmag, np.int)
 else:
     # Don't smooth but just insert magnitude images into the matrix
     # called features.

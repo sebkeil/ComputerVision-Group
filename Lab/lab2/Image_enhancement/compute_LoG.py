@@ -11,17 +11,7 @@ def compute_LoG(image, LOG_type=1):
 
         #method 1
         sigma = 0.5      
-        size = 5
-        # # Smoothing the image using gaussian filter 
-        # x = Gaussian_filter(image, size=size, sigma=sigma)
-    
-        # # Taking Second derivative of a Gaussian image 
-        # a = (np.divide(np.square(x), np.power(sigma,4)) - np.divide(1,np.square(sigma)))
-     
-        # b = np.exp((-1)*(np.square(x)/(2*np.square(sigma))))
-      
-        # img = a * b
-        # img = cv2.convertScaleAbs(img)       
+        size = 5      
         img = cv2.GaussianBlur(image, (size,size), sigma)
         img = cv2.Laplacian(img, ddepth= cv2.CV_16S, ksize=size)
   
@@ -36,6 +26,7 @@ def compute_LoG(image, LOG_type=1):
         g = g/g.sum()
         
         outimg = convolve2d(image, g, mode='same')
+
             
         return outimg
 
@@ -101,35 +92,5 @@ if __name__ == '__main__':
     ax[1, 1].imshow(output_image3, cmap='gray')
 
     plt.show()
-
-    # size = 5
-
-    # shape = (5,5)
-    # sigma = 1.0
-    # m, n = [(ss-1.)/2. for ss in shape]
-    # x, y = np.ogrid[-m:m+1, -n:n+1]
-
-    # Gauss = np.divide(1,(np.square(sigma)*2*np.pi)) * np.exp(-(np.square(x) + np.square(y))/(2 * np.square(sigma)))
-
-    # print(Gauss)
-
-    # s, k = 1, 2 #  generate a (2k+1)x(2k+1) gaussian kernel with mean=0 and sigma = s
-    # probs = [exp(-z*z/(2*s*s))/sqrt(2*pi*s*s) for z in range(-k,k+1)]
-    # kernel = np.outer(probs, probs)
-
-    # x, y = np.mgrid[-size//2 + 1:size//2 + 1, -size//2 + 1:size//2 + 1]
-    # g = np.exp(-((x**2 + y**2)/(2.0*sigma**2)))
-    # m = g*(1/(2*sigma*sigma*np.pi))
-
-    # blur_img = convolve2d(gray_image, Gauss)
-
-    # apply_gausian =
-
-    # fig = plt.figure()
-    # fig.add_subplot(2,2,1)
-    # plt.imshow(gray_image, cmap='gray')
-    # fig.add_subplot(2,2,2)
-    # plt.imshow(blur_img, cmap='gray')
-    # plt.show()
 
     
