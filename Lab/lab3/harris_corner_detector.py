@@ -27,6 +27,7 @@ def harris_corner_detector(img, window_size=29, threshold=600, sigma=5, kernel_s
         for i in range(kernel_size):
             kernel.append(val)
             val +=1 
+
     kernel = np.asarray(kernel)
     kernel = kernel.reshape(1, kernel_size)
 
@@ -94,3 +95,23 @@ if __name__ == "__main__":
     img, gray_img = load_img(cwd+img_path)
     H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
     plot_figures(img,Ix, Iy, r, c) 
+
+    image_center = tuple(np.array(img.shape[1::-1]) / 2)
+    rot_mat = cv2.getRotationMatrix2D(image_center, 360-45, 1.0)
+    img_rot45 = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
+
+    gray_img = cv2.cvtColor(img_rot45, cv2.COLOR_BGR2GRAY)
+    gray_img = gray_img.astype(np.float32)
+    H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
+    plot_figures(img_rot45,Ix, Iy, r, c) 
+
+    image_center = tuple(np.array(img.shape[1::-1]) / 2)
+    rot_mat = cv2.getRotationMatrix2D(image_center, 360-90, 1.0)
+    img_rot90 = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
+
+    gray_img = cv2.cvtColor(img_rot90, cv2.COLOR_BGR2GRAY)
+    gray_img = gray_img.astype(np.float32)
+    H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
+    plot_figures(img_rot90,Ix, Iy, r, c) 
+
+
