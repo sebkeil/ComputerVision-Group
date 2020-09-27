@@ -10,27 +10,94 @@ sphere2 = cv2.imread('sphere2.ppm', cv2.IMREAD_GRAYSCALE)
 cv2.imshow('sphere1', sphere1)
 
 
-"""
+
 def split_windows(image, winsize_r=15, winsize_c=15):
     imheight = image.shape[0]
     imwidth = image.shape[1]
     crop_size = 5
     windows = []
 
+    x_positions = []      # keep track of central pixel locations for the quiver plot
+    y_positions = []
+
     for y in range(0, imheight-crop_size, winsize_c):
         for x in range(0, imwidth-crop_size, winsize_r):
             window = image[y:y + winsize_c, x:x + winsize_r]
+            x_pos = round(x + winsize_r/2, 0)       # round up
+            y_pos = round(y + winsize_c / 2, 0)
+            x_positions.append(x_pos)
+            y_positions.append(y_pos)
             windows.append(window)
             #print(window.shape)
             #cv2.imshow("window_{}_{}".format(x,y), window)
 
-    return windows
+    return windows, x_positions, y_positions
 
-sphere1_wins = split_windows(sphere1)
-sphere2_wins = split_windows(sphere2)
+
+def optical_flow(win1, win2):
+
+    sobel_x = np.asarray([[-1, 0, 1],
+                          [-2, 0, 2],
+                          [-1, 0, 1]], dtype=np.float32)
+
+    sobel_y = np.asarray([[-1, -2, -1],
+                          [0, 0, 0],
+                          [1, 2, 1]],  dtype=np.float32)
+
+    kernel_t = np.ones((3,3), dtype=np.float32)
+
+    # take the image derivatives using sobel kernels
+    mode = 'same'
+    Ix = signal.convolve2d(win1, sobel_x, boundary='symm', mode=mode)
+    Iy = signal.convolve2d(win1, sobel_y, boundary='symm', mode=mode)
+    It = signal.convolve2d(win2, kernel_t, boundary='symm', mode=mode) + signal.convolve2d(win1, -kernel_t, boundary='symm', mode=mode)
+
+    b = It.flatten()  # get b here
+    A = np.vstack((Ix.flatten(), Iy.flatten())).T  # get A here
+    v = np.matmul(np.matmul(np.linalg.pinv(np.matmul(A.T, A)),A.T), b)
+
+    return v
+
+
+sphere1_wins, sphere1_xpos, sphere1_ypos = split_windows(sphere1)
+sphere2_wins, sphere2_xpos, sphere2_ypos = split_windows(sphere2)
+
+print('x',  sphere1_xpos)
+print('y', sphere1_ypos)
+
+
+# arange and fill up the vector of velocities
+v_vector = []
+
+for i in range(len(sphere1_wins)):
+    v = optical_flow(sphere1_wins[i], sphere2_wins[i])
+    v_vector.append(v)
+
+# convert everything into np arrays
+
+sphere1_xpos = np.array(sphere1_xpos)
+sphere1_ypos = np.array(sphere1_ypos)
+v_vector = np.array(v_vector)
+
+
+print(sphere1_xpos.shape, sphere1_ypos.shape, v_vector.shape)
+
+def plot_optical_flow(x_pos, y_pos, v_vector):
+
+    fig, ax = plt.subplots()
+    plt.quiver(x_pos, y_pos, v_vector[:, 0], v_vector[:, 1], angles='xy', color='green')
+    #plt.xlim(0,200)
+    #plt.ylim(0,200)
+    plt.show()
+
+
+plot_optical_flow(sphere1_xpos, sphere1_ypos, v_vector)
+
+
+
+
 
 """
-
 
 def optical_flow(image1, image2):
 
@@ -78,30 +145,32 @@ def optical_flow(image1, image2):
 v = optical_flow(sphere1, sphere2)
 
 
-print("Sphere 1 x index:", sphere1.ndindex.shape)
-print("Sphere 1 y:", sphere1[0].shape)
-print("V", v.shape)
-print("V[0, :, 0]", v[0, :, 0].shape)
-print("V[:, 0, 1]", v[:, 0, 1].shape)
-print("V[:, :, 1]", v[:, :, 1].shape)
+def plot_optical_flow(v):
 
+    # create matrices that contain x or y position if there is an associated displacement in v
+    x_pos = np.zeros((200, 200), dtype=np.float32)
+    y_pos = np.zeros((200, 200), dtype=np.float32)
 
-def plot_optical_flow(image1, v):
+    for x in range(v.shape[0]):
+        for y in range(v.shape[1]):
+            #print(v[x][y])
+            #print(type(v[x][y]))
+            if np.count_nonzero(v[x][y]) > 0:
+                x_pos[x][y] = x
+                y_pos[x][y] = y
+
+    #print(x_pos.flatten().shape, y_pos.flatten().shape, v[:, :, 0].flatten().shape, v[:, :, 1].flatten().shape)
     fig, ax = plt.subplots()
-
-    x_pos = image1[1].index
-    y_pos = image1[0]
-    x_direct = v[0, :, 0]
-    y_direct = v[:, 0, 1]
-
-    ax.quiver(x_pos, y_pos, x_direct, y_direct)
+    plt.quiver(x_pos.flatten(), y_pos.flatten(), v[:, :, 0].flatten(), v[:, :, 1].flatten())
+    plt.xlim(0,200)
+    plt.ylim(0,200)
     plt.show()
 
 
-plot_optical_flow(sphere1, v)
+plot_optical_flow(v)
 
 
-"""
+
 def optical_flow(image1, image2):
 
     kernel_x = np.array([[-1., 1.], [-1., 1.]])
