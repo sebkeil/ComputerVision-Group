@@ -63,9 +63,12 @@ def plot_figures(img, Ix, Iy, r, c):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
     fig.set_figwidth(15)
     ax1.imshow(img, cmap='gray')
+    ax1.set_title('Orginal Image')
     ax1.plot(c,r, '.r', markersize=4)
     ax2.imshow(Ix, cmap='gray')
+    ax2.set_title('Image derivatives Ix')
     ax3.imshow(Iy, cmap='gray')
+    ax3.set_title('Image derivatives Iy')
     plt.show()
 
 
