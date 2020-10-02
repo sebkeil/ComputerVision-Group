@@ -71,6 +71,16 @@ def plot_figures(img, Ix, Iy, r, c):
     ax3.title('Image derivatives Iy')
     plt.show()
 
+def save_fig(img, r, c, file_name):
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    fig = plt.figure()
+    plt.imshow(img)
+    plt.plot(c,r, '.r', markersize = 4)
+    #plt.show()
+    plt.axis('off')
+    plt.savefig(file_name+'.png')
+
 
 if __name__ == "__main__":
     
@@ -86,37 +96,41 @@ if __name__ == "__main__":
     window_size = 21
     threshold = 300
     H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
-    plot_figures(img,Ix, Iy, r, c) 
+    #plot_figures(img,Ix, Iy, r, c) 
+    file_name = 'toy'
+    save_fig(img, r, c, file_name)
 
-    # # Perameters 
-    # kernel_size = 5
-    # sigma = 10
-    # window_size = 25
-    # threshold = 20
+    # Perameters 
+    kernel_size = 5
+    sigma = 10
+    window_size = 25
+    threshold = 20
 
-    # img_path = '/pingpong/0000.jpeg'
-    # img, gray_img = load_img(cwd+img_path)
-    # H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
+    img_path = '/pingpong/0000.jpeg'
+    img, gray_img = load_img(cwd+img_path)
+    H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
     # plot_figures(img,Ix, Iy, r, c) 
+    file_name = 'pingpong'
+    save_fig(img, r, c, file_name)
 
 
 
-    image_center = tuple(np.array(img.shape[1::-1]) / 2)
-    rot_mat = cv2.getRotationMatrix2D(image_center, 360-45, 1.0)
-    img_rot45 = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
+    # image_center = tuple(np.array(img.shape[1::-1]) / 2)
+    # rot_mat = cv2.getRotationMatrix2D(image_center, 360-45, 1.0)
+    # img_rot45 = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
 
-    gray_img = cv2.cvtColor(img_rot45, cv2.COLOR_BGR2GRAY)
-    gray_img = gray_img.astype(np.float32)
-    H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
-    plot_figures(img_rot45,Ix, Iy, r, c) 
+    # gray_img = cv2.cvtColor(img_rot45, cv2.COLOR_BGR2GRAY)
+    # gray_img = gray_img.astype(np.float32)
+    # H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
+    # plot_figures(img_rot45,Ix, Iy, r, c) 
 
-    image_center = tuple(np.array(img.shape[1::-1]) / 2)
-    rot_mat = cv2.getRotationMatrix2D(image_center, 360-90, 1.0)
-    img_rot90 = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
+    # image_center = tuple(np.array(img.shape[1::-1]) / 2)
+    # rot_mat = cv2.getRotationMatrix2D(image_center, 360-90, 1.0)
+    # img_rot90 = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
 
-    gray_img = cv2.cvtColor(img_rot90, cv2.COLOR_BGR2GRAY)
-    gray_img = gray_img.astype(np.float32)
-    H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
-    plot_figures(img_rot90,Ix, Iy, r, c) 
+    # gray_img = cv2.cvtColor(img_rot90, cv2.COLOR_BGR2GRAY)
+    # gray_img = gray_img.astype(np.float32)
+    # H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
+    # plot_figures(img_rot90,Ix, Iy, r, c) 
 
 
