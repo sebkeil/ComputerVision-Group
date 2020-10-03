@@ -12,12 +12,14 @@ def RANSAC(img, kp1, kp2, matches, N = 1, P = 2):
     x2, y2 = kp2_cor[:,0], kp2_cor[:,1]
 
     inline_max = 0
+
     for i in range(N):
         # P matches at random from the total set of matches 
         random_matches = random.sample(range(0, len(x1)), P)
         x_p, y_p, x_t_p, y_t_p = x1[random_matches], y1[random_matches], x2[random_matches], y2[random_matches]
         
         # create matrix A and vector b 
+
         A = np.zeros((2*P,6))
         b = np.zeros((2*P,1))
         index = 0 
@@ -40,8 +42,7 @@ def RANSAC(img, kp1, kp2, matches, N = 1, P = 2):
 
         distance = np.sqrt((x_trans-x2)**2 + (y_trans-y2)**2)
 
-        print(np.sum(distance < 10))
-
+        # todo: verify the logic 
         if np.sum(distance < 10) > inline_max: 
             inline_max = np.sum(distance < 10)
             #I = distance<10 
@@ -57,14 +58,16 @@ def transformation(img, X):
      
     trans_img = np.zeros_like(img)
 
-    for r in range(trans_img.shape[0]): 
-        for c in range(trans_img.shape[1]): 
-            trans_img[r][c] = 255 
-            A_mat = np.array([[img[r],img[c], 0, 0, 1, 0], [0, 0, img[r],img[c], 0, 1]])
-            trans = np.dot(A_mat, X)
-            i,j  = trans[0], trans[1]
-            i = i.astype(np.int32)
-            j = j.astype(np.int32)
+    # todo: transform based on X, 
+    # 
+    
+    # for r in range(trans_img.shape[0]): 
+    #     for c in range(trans_img.shape[1]): 
+    #         trans_img[r][c] = 255 
+    #         A_mat = np.array([[img[r],img[c], 0, 0, 1, 0], [0, 0, img[r],img[c], 0, 1]])
+    #         trans = np.dot(A_mat, X)
+    #         i,j  = trans[0], trans[1]
+    
 
     return trans_img
      

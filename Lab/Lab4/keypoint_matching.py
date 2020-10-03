@@ -20,6 +20,8 @@ def keypoint(img1, img2, sigma =1.6):
 
     # finding key points 
     print('Finding interest points in photos...')
+    #sift = cv2.xfeatures2d.SIFT_create()
+    # todo: change the cv2 version to 3.7.4 
     sift = cv2.SIFT_create(sigma=sigma)
     kp1, des1 = sift.detectAndCompute(img1,None)
     kp2, des2 = sift.detectAndCompute(img2,None)
@@ -28,6 +30,9 @@ def keypoint(img1, img2, sigma =1.6):
     print('Finding matching interest points....')
     bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
     matches = bf.match(des1, des2)
+
+    # todo: find the best matches 
+    
     # bf = cv2.BFMatcher()
     # matches = bf.knnMatch(des1,des2, k=2)
 
