@@ -55,22 +55,37 @@ def transformation(img, X):
     # Converting images to gray scale if necessary 
     if len(img.shape) > 2:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-     
-    trans_img = np.zeros_like(img)
 
+    im_height = img.shape[0]
+    im_width = img.shape[1]
+
+    trans_img = np.zeros_like(img)
+    #print(trans_img)
+    print(' im shape', img.shape)
+    print('trans im shape', trans_img.shape)
     # todo: transform based on X, 
-    # 
-    
-    # for r in range(trans_img.shape[0]): 
-    #     for c in range(trans_img.shape[1]): 
-    #         trans_img[r][c] = 255 
-    #         A_mat = np.array([[img[r],img[c], 0, 0, 1, 0], [0, 0, img[r],img[c], 0, 1]])
-    #         trans = np.dot(A_mat, X)
-    #         i,j  = trans[0], trans[1]
-    
+
+    for x in range(im_width):
+        for y in range(im_height):
+            #print('X and Y:', x, y)
+            pixel_value = img[y][x]
+            A = np.array([[x, y, 0, 0, 1, 0], [0, 0, x, y, 0, 1]])
+            b = np.int_(np.round(np.matmul(A, X),0))
+            #print('A shape', A)
+            #print('b shape', b)
+
+            x_t = b[0][0]
+            y_t = b[1][0]
+
+            # make sure we only get the transformation within the image dimensions
+            if x_t > 0 and x_t < im_width:
+                #print('x-', b[0][0])
+                if y_t > 0 and y_t < im_height:
+                   #print('y-', b[1][0])
+                   trans_img[y_t][x_t] = pixel_value
 
     return trans_img
-     
+
 
 def built_in(img):
     # open CV transformation 

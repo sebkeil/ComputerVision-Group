@@ -13,16 +13,21 @@ def keypoint(img1, img2, sigma =1.6):
     if len(img2.shape) > 2:
         img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
     img1 = cv2.GaussianBlur(img1, (7,7), 6)
-    img1 = cv2.Canny(img1, 100,200 )
+    #img1 = cv2.Canny(img1, 100,200 )
 
     img2 = cv2.GaussianBlur(img2, (7,7), 6)
-    img2 = cv2.Canny(img2, 100,200 )
+    #img2 = cv2.Canny(img2, 100,200 )
 
     # finding key points 
     print('Finding interest points in photos...')
-    #sift = cv2.xfeatures2d.SIFT_create()
-    # todo: change the cv2 version to 3.7.4 
-    sift = cv2.SIFT_create(sigma=sigma)
+    sift = cv2.SIFT_create()
+
+    """
+    pip install opencv-python==4.0.44
+    pip install opencv-contrib-python==4.0.44
+    """
+
+    #sift = cv2.SIFT_create(sigma=sigma)
     kp1, des1 = sift.detectAndCompute(img1,None)
     kp2, des2 = sift.detectAndCompute(img2,None)
 
@@ -72,4 +77,4 @@ if __name__ == "__main__":
     
     # Draw matches ked points 
     plot_matched_points(img1, img2, kp1, kp2, matches)
-    
+

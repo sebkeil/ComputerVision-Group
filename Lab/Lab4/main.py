@@ -24,11 +24,11 @@ if __name__ == "__main__":
     plot_matched_points(img1, img2, kp1, kp2, matches)
 
     # Image alignment
-    print('Trainsforming images...')
+    print('Transforming images...')
     N = 1
     P = 3
     transform_x = RANSAC(img1, kp1, kp2, matches, N=N, P=P)
-    # trans_img = transformation(img1, transform_x)
+    trans_img = transformation(img1, transform_x)
 
     builtin_img = built_in(img1)
     # plot images with target image
