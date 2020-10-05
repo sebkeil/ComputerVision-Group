@@ -28,6 +28,7 @@ def harris_corner_detector(img, window_size=29, threshold=600, sigma=5, kernel_s
             kernel.append(val)
             val +=1 
 
+
     kernel = np.asarray(kernel)
     kernel = kernel.reshape(1, kernel_size)
 
@@ -63,12 +64,6 @@ def plot_figures(img, Ix, Iy, r, c):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
     fig.set_figwidth(15)
     ax1.imshow(img, cmap='gray')
-    ax1.set_title('Orginal Image')
-    ax1.plot(c,r, '.r', markersize=4)
-    ax2.imshow(Ix, cmap='gray')
-    ax2.set_title('Image derivatives Ix')
-    ax3.imshow(Iy, cmap='gray')
-    ax3.title('Image derivatives Iy')
     plt.show()
 
 
@@ -87,6 +82,7 @@ if __name__ == "__main__":
     threshold = 300
     H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
     plot_figures(img,Ix, Iy, r, c) 
+
 
     # # Perameters 
     # kernel_size = 5
@@ -119,4 +115,16 @@ if __name__ == "__main__":
     H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
     plot_figures(img_rot90,Ix, Iy, r, c) 
 
+
+
+    # Perameters 
+    kernel_size = 5
+    sigma = 10
+    window_size = 25
+    threshold = 20
+
+    img_path = '/pingpong/0000.jpeg'
+    img, gray_img = load_img(cwd+img_path)
+    H, r, c, Ix, Iy = harris_corner_detector(gray_img, window_size=window_size, threshold=threshold, sigma=sigma, kernel_size = kernel_size)
+    plot_figures(img,Ix, Iy, r, c) 
 
