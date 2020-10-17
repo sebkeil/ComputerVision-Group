@@ -1,13 +1,17 @@
 import numpy as np 
 import cv2 
 # from stl10_input import *
-import sklearn
+from sklearn.cluster import KMeans
 # from __future__ import print_function
 import sys
 import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+from sklearn.svm import SVC
+from sklearn.preprocessing import scale
+from sklearn.preprocessing import StandardScaler
+
 
 if sys.version_info >= (3, 0, 0):
     import urllib.request as urllib
@@ -58,12 +62,13 @@ def read_single_image(image_file):
     image = np.reshape(image, (3, 96, 96))
     image = np.transpose(image, (2, 1, 0))
     return image
+
+
 def plot_image(img): 
     plt.imshow(img)
     plt.show()
 
 def read_all_images(path_to_data):
-
 
     with open(path_to_data, 'rb') as f:
         # read whole file in uint8 chunks
@@ -91,28 +96,104 @@ def draw_subset(images):
 # 2 - sift detector
 def detect_sift(images):
 
-    keypoints = []
     descriptors = []
+
+    sift = cv2.xfeatures2d.SIFT_create()
 
     for img in images:
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        sift = cv2.SIFT_create()
         kp, des = sift.detectAndCompute(gray, None)
-        keypoints.append(kp)
-        descriptors.append(des)
-        # cv2.drawKeypoints(gray, kp, img)
-        # cv2.waitKey(0)
-        
-    return keypoints, descriptors
 
+        if des is not None:
+            for d in des:
+                descriptors.append(d)
+
+
+        #img1 = cv2.drawKeypoints(gray, kp, gray)
+        #plt.imshow(img1)
+        #plt.show()
+
+    descriptors = np.asarray(descriptors)
+
+    return descriptors
 
 # 3 using k-means clustering to generate visual vocabulary
 def visual_vocab(n_words, descriptors):
-    kmeans = KMeans(n_clusters=n_words, random_state=0)  #n_clusters is the number of words we want in dictionary
-    kmeans.fit(descriptors)
+    kmeans = KMeans(n_clusters=n_words)  #n_clusters is the number of words we want in dictionary
+    kmeans.fit(X=descriptors)
     visual_words = kmeans.cluster_centers_
     return visual_words 
 
+def constructHisto(images, words):
+    sift = cv2.xfeatures2d.SIFT_create()
+    image_histos = []
+    for img in images:
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        kp, des = sift.detectAndCompute(gray, None)
+        #print('LEN DES', len(des))
+        #for d in des:
+        #    print('LEN D', len(d))
+        # For each extracted feature vector, compute its nearest neighbor in the dictionary created in Step #2 — this is normally accomplished using the Euclidean Distance.
+        closest_words = []
+
+        for d in des:
+            closest_word = words[0]
+            closest_distance = np.linalg.norm(d-words[0])
+            for w in words:
+                euclidean_dist = np.linalg.norm(d-w)
+                if euclidean_dist < closest_distance:
+                    closest_word = w
+                    closest_distance = euclidean_dist
+            closest_words.append(closest_word)
+        image_histos.append(closest_words)
+        #plt.hist(closest_words, bins=len(words))
+        #plt.show()
+
+    image_histos = np.array(image_histos, dtype=object)
+    return image_histos
+
+
+def getFeaturesVector(image_histos, words):
+    image_features = []
+    for histo in image_histos:
+        feature_vec = []
+        for word in words:
+            count = 0
+            for histo_word in histo:
+                if np.array_equal(word, histo_word):#(histo_word == word).all():
+                    count += 1
+            feature_vec.append(count)
+        image_features.append(feature_vec)
+    #image_features = np.asarray(image_features).reshape(-1, 1)
+    return image_features
+
+
+def trainSVC(image_histos, labels):
+    scaler = StandardScaler().fit(image_histos)
+    image_histos = scaler.transform(image_histos)
+    clf = SVC()
+    clf.fit(image_histos, labels)
+    return clf
+
+
+def sortClasses(images, labels):
+    airplanes1 = []
+    birds2 = []
+    ships3 = []
+    horses4 = []
+    cars5 = []
+    for label in labels:
+        if label == 1:
+            airplanes1.append(images[np.where(labels == label)])
+        elif label == 2:
+            birds2.append(images[np.where(labels == label)])
+        elif label == 3:
+            ships3.append(images[np.where(labels == label)])
+        elif label == 4:
+            horses4.append(images[np.where(labels == label)])
+        elif label == 5:
+            cars5.append(images[np.where(labels == label)])
+    return airplanes1, birds2, ships3, horses4, cars5
 
 def main(): 
     download_and_extract()
@@ -122,23 +203,64 @@ def main():
         # plot_image(image)
     
     images = read_all_images(DATA_PATH)
-
-    print(images.shape)
-
     labels = read_labels(LABEL_PATH)
-    print(labels.shape)
+    print(type(images[0]), type(labels))
+    print(np.unique(labels))
 
-    plt.imshow(images[0])
-    plt.title(labels[0])
-    #plt.show()
+    image_new = []
+    labels_new = []
 
-    kps, des = detect_sift(images[3:])
+    for i in range(len(labels)):
+        if labels[i] == 5:
+            cats.append(image[i])
+            image_new.append(images[i])
+            labels_new.append(labels[i])
+    """
+    for i in range(len(image_new)):
+        plt.imshow(image_new[i])
+        plt.title(labels_new[i])
+        plt.show()
+    """
 
-    print(len(kps))
-    print(len(des))
+    print('LEN IMAGES', len(image_new))
+
+    #airplanes1, birds2, ships3, horses4, cars5 = sortClasses(images, labels)
+    ''''
+    i = 0
+    for plane in airplanes1:
+        plt.imshow(plane)
+        plt.title('plane')
+        plt.show()
+        i += 1
+        if i > 7:
+            break
+    '''
+
+    plt.imshow(images[39])
+    plt.title(labels[39])
+    plt.show()
+
+    descriptors = detect_sift(images[0:40])
+
+    words = visual_vocab(1000, descriptors)      # try 400, 1000, 4000
+
+    print(len(words))
+
+    # convert each image to its histogram representation
+
+    image_histos = constructHisto(images[0:40], words)
+
+    image_features = getFeaturesVector(image_histos[0:40], words)
+
+    print('IF', len(image_features))
+    print('IF0', len(image_features[0]))
+
+    clf = trainSVC(image_features[0:39], labels[0:39])
+
+    print('Actual Class', labels[39])
+    print('Predicted Class', clf.predict([image_features[39]]))
 
 
-    
 
 
 
@@ -190,7 +312,17 @@ Steps to take:
 
 Note: Installation (pip install opencv-python==3.4.2.17  pip install opencv-contrib-python==3.4.2.17)
 
+Step #5: Vector quantization
 
+Given an arbitrary image (whether from our original dataset or not), we can quantify and abstractly represent the image using our bag of visual words model by applying the following process:
+
+    Extract feature vectors from the image in the same manner as Step #1 above.
+    For each extracted feature vector, compute its nearest neighbor in the dictionary created in Step #2 — this is normally accomplished using the Euclidean Distance.
+    Take the set of nearest neighbor labels and build a histogram of length k (the number of clusters generated from k-means), where the i‘th value in the histogram is the frequency of the i‘th visual word. This process in modeling an object by its distribution of prototype vectors is commonly called vector quantization.
+
+https://gurus.pyimagesearch.com/the-bag-of-visual-words-model/
+https://medium.com/@aybukeyalcinerr/bag-of-visual-words-bovw-db9500331b2f
+https://machinelearningknowledge.ai/image-classification-using-bag-of-visual-words-model/
 '''
 
 
