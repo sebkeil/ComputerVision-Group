@@ -86,13 +86,6 @@ def read_labels(path_to_labels):
         return labels
 
 
-# get function to draw a subset (all categories)
-def draw_subset(images):
-    k = len(images)/2
-    images = random.sample(images, k)
-    return images
-
-
 # 2 - sift detector
 def detect_sift(images):
 
@@ -108,7 +101,7 @@ def detect_sift(images):
             for d in des:
                 descriptors.append(d)
 
-
+        ### COMMENT OUT TO SHOW KEYPOINTS ###
         #img1 = cv2.drawKeypoints(gray, kp, gray)
         #plt.imshow(img1)
         #plt.show()
@@ -130,15 +123,17 @@ def constructHisto(images, words):
     for img in images:
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         kp, des = sift.detectAndCompute(gray, None)
-        #print('LEN DES', len(des))
-        #for d in des:
-        #    print('LEN D', len(d))
-        # For each extracted feature vector, compute its nearest neighbor in the dictionary created in Step #2 — this is normally accomplished using the Euclidean Distance.
-        closest_words = []
+
+        # For each extracted feature vector, compute its nearest neighbor in the dictionary created in Step #2 —
+        # this is normally accomplished using the Euclidean Distance.
+
+        closest_words = []      # contains the nearest neighbors of all the descriptor
 
         for d in des:
+            # initialize closest word to the first word, closest distance to the first distance
             closest_word = words[0]
             closest_distance = np.linalg.norm(d-words[0])
+            # go through all the words and update the closest one (using euclidean distance)
             for w in words:
                 euclidean_dist = np.linalg.norm(d-w)
                 if euclidean_dist < closest_distance:
@@ -168,32 +163,64 @@ def getFeaturesVector(image_histos, words):
     return image_features
 
 
-def trainSVC(image_histos, labels):
-    scaler = StandardScaler().fit(image_histos)
-    image_histos = scaler.transform(image_histos)
+def trainSVC(image_features, labels):
+    scaler = StandardScaler().fit(image_features)
+    image_histos = scaler.transform(image_features)
     clf = SVC()
     clf.fit(image_histos, labels)
     return clf
 
 
 def sortClasses(images, labels):
-    airplanes1 = []
-    birds2 = []
-    ships3 = []
-    horses4 = []
-    cars5 = []
-    for label in labels:
-        if label == 1:
-            airplanes1.append(images[np.where(labels == label)])
-        elif label == 2:
-            birds2.append(images[np.where(labels == label)])
-        elif label == 3:
-            ships3.append(images[np.where(labels == label)])
-        elif label == 4:
-            horses4.append(images[np.where(labels == label)])
-        elif label == 5:
-            cars5.append(images[np.where(labels == label)])
-    return airplanes1, birds2, ships3, horses4, cars5
+    bin_1 = []
+    bin_2 = []
+    bin_3 = []
+    bin_4 = []
+    bin_5 = []
+
+    for i in range(len(labels)):
+        if labels[i] == 1:
+            bin_1.append(images[i])
+        elif labels[i] == 2:
+            bin_2.append(images[i])
+        elif labels[i] == 9:
+            bin_3.append(images[i])
+        elif labels[i] == 7:
+            bin_4.append(images[i])
+        elif labels[i] == 3:
+            bin_5.append(images[i])
+
+    return bin_1, bin_2, bin_3, bin_4, bin_5
+
+def subset_images(images, labels):
+    subsize = 50 #int(round(len(labels)/2, 0))
+    image_sub = []
+    label_sub = []
+    for i in range(subsize):
+        if labels[i] == 1 or labels[i] == 2 or labels[i] == 9 or labels[i] == 7 or labels[i] == 3:
+            image_sub.append(images[i])
+            label_sub.append(labels[i])
+    return image_sub, label_sub
+
+def plot_histograms(image_features, labels_sub, words):
+    category_dict = {
+        1: ' 1 - Airplane',
+        2: ' 2 - Bird',
+        9: ' 3 - Ship',
+        7: ' 4 - Horse',
+        3: ' 5 - Car'}
+
+    w_bins = [w for w in range(len(words))]
+
+    for i in range(len(image_features)):
+        plt.bar(w_bins, height=image_features[i])
+        plt.title('Category: {}'.format(category_dict[labels_sub[i]]))
+        plt.xlabel('Visual Word #')
+        plt.ylabel('Frequency')
+        plt.show()
+        if i > 9:
+            break
+
 
 def main(): 
     download_and_extract()
@@ -201,67 +228,48 @@ def main():
     with open(DATA_PATH) as f:
         image = read_single_image(f)
         # plot_image(image)
-    
+
+    print("Reading in images...")
+
     images = read_all_images(DATA_PATH)
     labels = read_labels(LABEL_PATH)
-    print(type(images[0]), type(labels))
-    print(np.unique(labels))
 
-    image_new = []
-    labels_new = []
+    print("Done! Read in {} images.".format(len(images)))
 
-    for i in range(len(labels)):
-        if labels[i] == 5:
-            cats.append(image[i])
-            image_new.append(images[i])
-            labels_new.append(labels[i])
-    """
-    for i in range(len(image_new)):
-        plt.imshow(image_new[i])
-        plt.title(labels_new[i])
-        plt.show()
-    """
+    print("Taking subset of images...")
 
-    print('LEN IMAGES', len(image_new))
+    # get subset of half the images from all categories
+    images_sub, labels_sub = subset_images(images, labels)
 
-    #airplanes1, birds2, ships3, horses4, cars5 = sortClasses(images, labels)
-    ''''
-    i = 0
-    for plane in airplanes1:
-        plt.imshow(plane)
-        plt.title('plane')
-        plt.show()
-        i += 1
-        if i > 7:
-            break
-    '''
+    print("Done! Took subset of {} images.".format(len(images_sub)))
 
-    plt.imshow(images[39])
-    plt.title(labels[39])
-    plt.show()
+    # sort each class into bins of size 500
+    airplanes1, birds2, ships3, horses4, cars5 = sortClasses(images, labels)
 
-    descriptors = detect_sift(images[0:40])
+    print('Building descriptors...')
+    # get descriptors and build visual vocabulary
+    descriptors = detect_sift(images_sub)
+    print('Done! There are {} descriptors in total now'.format(len(descriptors)))
 
+    print('Generating Visual Vocabulary...')
     words = visual_vocab(1000, descriptors)      # try 400, 1000, 4000
+    print('Done! Generated {} visual words from descriptors.'.format(len(words)))
 
-    print(len(words))
-
+    print('Converting each image into its bag of words representation...')
     # convert each image to its histogram representation
+    image_histos = constructHisto(images_sub, words)
+    print('Done! There are {} images in their BoW representation now.'.format(len(image_histos)))
 
-    image_histos = constructHisto(images[0:40], words)
+    print('Computing feature vector represenation for the images..')
+    image_features = getFeaturesVector(image_histos, words)
+    print('Done! We have {} image vectors now, with each vector consisting of {} features'.format(len(image_features), len(image_features[0])))
 
-    image_features = getFeaturesVector(image_histos[0:40], words)
+    plot_histograms(image_features, labels_sub, words)
 
-    print('IF', len(image_features))
-    print('IF0', len(image_features[0]))
+    clf = trainSVC(image_features, labels_sub)
 
-    clf = trainSVC(image_features[0:39], labels[0:39])
-
-    print('Actual Class', labels[39])
-    print('Predicted Class', clf.predict([image_features[39]]))
-
-
-
+    print('Actual Class', labels_sub[4])
+    print('Predicted Class', clf.predict([image_features[4]]))
 
 
 
@@ -327,3 +335,22 @@ https://machinelearningknowledge.ai/image-classification-using-bag-of-visual-wor
 
 
 
+"""
+    airplanes1 = []
+    birds2 = []
+    ships3 = []
+    horses4 = []
+    cars5 = []
+    for label in labels:
+        if label == 1:
+            airplanes1.append(images[np.where(labels == label)])
+        elif label == 2:
+            birds2.append(images[np.where(labels == label)])
+        elif label == 3:
+            ships3.append(images[np.where(labels == label)])
+        elif label == 4:
+            horses4.append(images[np.where(labels == label)])
+        elif label == 5:
+            cars5.append(images[np.where(labels == label)])
+    return airplanes1, birds2, ships3, horses4, cars5
+"""
