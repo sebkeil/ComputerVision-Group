@@ -11,7 +11,7 @@ import random
 from sklearn.svm import SVC
 from sklearn.preprocessing import scale
 from sklearn.preprocessing import StandardScaler
-
+import pandas as pd
 
 if sys.version_info >= (3, 0, 0):
     import urllib.request as urllib
@@ -135,20 +135,21 @@ def construct_bow_rep(images, words):
 
         closest_words = []      # contains the nearest neighbors of all the descriptor
 
-        for d in des:
-            # initialize closest word to the first word, closest distance to the first distance
-            closest_word = words[0]
-            closest_distance = np.linalg.norm(d-words[0])
-            # go through all the words and update the closest one (using euclidean distance)
-            for w in words:
-                euclidean_dist = np.linalg.norm(d-w)
-                if euclidean_dist < closest_distance:
-                    closest_word = w
-                    closest_distance = euclidean_dist
-            closest_words.append(closest_word)
-        images_as_bow.append(closest_words)
-        #plt.hist(closest_words, bins=len(words))
-        #plt.show()
+        if des is not None:
+            for d in des:
+                # initialize closest word to the first word, closest distance to the first distance
+                closest_word = words[0]
+                closest_distance = np.linalg.norm(d-words[0])
+                # go through all the words and update the closest one (using euclidean distance)
+                for w in words:
+                    euclidean_dist = np.linalg.norm(d-w)
+                    if euclidean_dist < closest_distance:
+                        closest_word = w
+                        closest_distance = euclidean_dist
+                closest_words.append(closest_word)
+            images_as_bow.append(closest_words)
+            #plt.hist(closest_words, bins=len(words))
+            #plt.show()
 
     images_as_bow = np.array(images_as_bow, dtype=object)
     return images_as_bow
@@ -238,7 +239,7 @@ def plot_histograms(image_features, labels_sub, words):
         plt.xlabel('Visual Word #')
         plt.ylabel('Frequency')
         plt.show()
-        if i >= 1:
+        if i >= 8:
             break
 
 def getNegatives(images, labels, bin_size):
@@ -265,10 +266,15 @@ def getNegatives(images, labels, bin_size):
 
 def make_predictions(image_feature_test, labels_sub_test, clf1, clf2, clf3, clf4, clf5):
     bin1_preds = []
+    #bin1_preds_perc = []
     bin2_preds = []
+    #bin2_preds_perc = []
     bin3_preds = []
+    #bin3_preds_perc = []
     bin4_preds = []
+    #bin4_preds_perc = []
     bin5_preds = []
+    #bin5_preds_perc = []
 
     for i in range(len(image_feature_test)):
         image_pred = []
@@ -296,37 +302,52 @@ def make_predictions(image_feature_test, labels_sub_test, clf1, clf2, clf3, clf4
         # image_rank = np.reshape(image_rank, (5, 1))
 
         if labels_sub_test[i] == 1:
+            #bin1_preds_perc.append(image_pred[0]['prob'])
             bin1_preds.append(image_pred)
         elif labels_sub_test[i] == 2:
+            #bin2_preds_perc.append(image_pred[0]['prob'])
             bin2_preds.append(image_pred)
         elif labels_sub_test[i] == 3:
+            #bin3_preds_perc.append(image_pred[0]['prob'])
             bin3_preds.append(image_pred)
         elif labels_sub_test[i] == 4:
+            #bin4_preds_perc.append(image_pred[0]['prob'])
             bin4_preds.append(image_pred)
         elif labels_sub_test[i] == 5:
+            #bin5_preds_perc.append(image_pred[0]['prob'])
             bin5_preds.append(image_pred)
 
-    bin1_preds = sorted(bin1_preds, key=lambda k: (k['class'], k['prob']))
+    #bin1_preds = sorted(bin1_preds, key=lambda k: k['prob'] if k['class']==1, reverse=False)
     print(bin1_preds)
 
-    return bin1_preds, bin2_preds, bin3_preds, bin4_preds, bin5_preds
+    return bin1_preds, bin2_preds, bin3_preds, bin4_preds, bin5_preds #, bin1_preds_perc, bin2_preds_perc, bin3_preds_perc, bin4_preds_perc, bin5_preds_perc
 
 def mean_avg_precision(bin, class_nr):
 
-    def f_c(bin, class_nr):
-        for image in bin:
-            if image[0] == class_nr:
-                return
+    def f_c(i, bin, class_nr):
+        counter = 0
+        if bin[i][0]['class'] == class_nr:
+            for j in range(i):
+                #dict = bin[j][0]
+                #print(dict)
+                #print(dict['class'])
+                if bin[j][0]['class'] == class_nr:
+                    counter += 1
+        return counter
 
-    f_c(bin, class_nr)
-    n = len(bin) * len(bin[0])
-    m = len(bin)
+    n = len(bin)
+    m = len(bin)/5
+
+    sum = 0
+    for i in range(1, n):
+        temp = f_c(i, bin, class_nr) / i
+        sum += temp
+
+    res = (1/m) * sum
+    return res
 
 
-
-
-
-def main(): 
+def main():
     download_and_extract()
 
     with open(DATA_PATH) as f:
@@ -345,11 +366,11 @@ def main():
 
     # lets seperate those images into two subsets, first one we'll use for building the visual vocab, second one for training the classifiers
 
-    images_sub_1 = images_sub[:10]
-    labels_sub_1 = labels_sub[:10]
+    images_sub_1 = images_sub[:100]
+    labels_sub_1 = labels_sub[:100]
 
-    images_sub_2 = images_sub[2300:]
-    labels_sub_2 = labels_sub[2300:]
+    images_sub_2 = images_sub[1000:]
+    labels_sub_2 = labels_sub[1000:]
 
     print("Batch 1: {} images, Batch 2: {} images.".format(len(images_sub_1), len(images_sub_2)))
 
@@ -360,7 +381,7 @@ def main():
     print('Done! There are {} descriptors in total now'.format(len(descriptors)))
 
     print('Generating Visual Vocabulary...')
-    words = visual_vocab(400, descriptors)      # try 400, 1000, 4000
+    words = visual_vocab(1000, descriptors)      # try 400, 1000, 4000
     print('Done! Generated {} visual words from descriptors.'.format(len(words)))
 
     print('Converting each image into its bag of words representation...')
@@ -381,11 +402,11 @@ def main():
 
 
     print('Sorting remaining images into bins...')
-    airplanes1, birds2, ships3, horses4, cars5 = sortClasses(image_feature2, labels_sub_2, bin_size=5)
+    airplanes1, birds2, ships3, horses4, cars5 = sortClasses(image_feature2, labels_sub_2, bin_size=50)
     print('Done! Sorted remaining images into 5 bins of lengths: {}, {}, {}, {}, {}'.format(len(airplanes1), len(birds2), len(ships3), len(horses4), len(cars5)))
 
     print('Getting negative examples and sorting them')
-    neg_1, neg_2, neg_3, neg_4, neg_5 = getNegatives(image_feature2, labels_sub_2, bin_size=20)
+    neg_1, neg_2, neg_3, neg_4, neg_5 = getNegatives(image_feature2, labels_sub_2, bin_size=200)
     print('Done! Sorted negative images into 5 bins of lengths: {}, {}, {}, {}, {}'.format(len(neg_1), len(neg_2),len(neg_3), len(neg_4),len(neg_5)))
 
     print('Training classifiers...')
@@ -417,8 +438,8 @@ def main():
 
     # get subset just for testing it out
 
-    images_sub_test = images_sub_test[:10]
-    labels_sub_test = labels_sub_test[:10]
+    #images_sub_test = images_sub_test[:1000]
+    #labels_sub_test = labels_sub_test[:1000]
 
     print('Computing BoW representations for test set images...')
     images_test_as_bow = construct_bow_rep(images_sub_test, words)
@@ -427,7 +448,38 @@ def main():
 
     bin1_preds, bin2_preds, bin3_preds, bin4_preds, bin5_preds = make_predictions(image_feature_test, labels_sub_test, clf1, clf2, clf3, clf4, clf5)
 
-    #print(bin1_preds, bin2_preds, bin3_preds, bin4_preds, bin5_preds)
+
+    "------------ Top 5 Ranks ---------------------"
+    print('BIN1',bin1_preds[:20])
+    print('BIN2', bin2_preds[:20])
+    print('BIN3', bin3_preds[:20])
+    print('BIN4', bin4_preds[:20])
+    print('BIN5', bin5_preds[:20])
+    print('-----------------------------------------')
+
+    print("------------ Bottom 5 Ranks ---------------------")
+    print('BIN1', bin1_preds[len(bin1_preds)-20:])
+    print('BIN2', bin2_preds[len(bin2_preds)-20:])
+    print('BIN3', bin3_preds[len(bin3_preds)-20:])
+    print('BIN4', bin4_preds[len(bin4_preds)-20:])
+    print('BIN5', bin5_preds[len(bin5_preds)-20:])
+    print('-----------------------------------------')
+
+
+    map1 = mean_avg_precision(bin1_preds, 1)
+    map2 = mean_avg_precision(bin2_preds, 2)
+    map3 = mean_avg_precision(bin3_preds, 3)
+    map4 = mean_avg_precision(bin4_preds, 4)
+    map5 = mean_avg_precision(bin5_preds, 5)
+
+    overall_map = (map1 + map2 + map3 + map4 + map5) / 5
+
+    print('MAP1', map1)
+    print('MAP2', map2)
+    print('MAP3', map3)
+    print('MAP4', map4)
+    print('MAP5', map5)
+    print('Overall', overall_map)
 
 if __name__ == '__main__':
     main()
@@ -509,3 +561,5 @@ https://machinelearningknowledge.ai/image-classification-using-bag-of-visual-wor
             cars5.append(images[np.where(labels == label)])
     return airplanes1, birds2, ships3, horses4, cars5
 """
+
+# bin_1_preds = sorted(bin1_preds, key=
